@@ -18,5 +18,4 @@ __pycache__/
 *.html
 *.fits
 *.img
-pysimsat/spectrum_files/sw01132968000bevpb_sk.img
-
+modeM0/
