@@ -5,6 +5,7 @@ from astropy.io import fits
 import os
 from pathlib import Path
 from xspec import Xset
+from scipy.stats import chi2
 
 Xset.chatter = 5
 
@@ -77,7 +78,7 @@ def plot_observation_spectrum(sourcename, exposureTime, output_dir, spec_dir):
     plt.close()
     
 
-def calculate_snr(spec_dir):
+def calculate_snr(spec_dir, sourcechars):
     obs = fits.getdata(spec_dir / "observation.pha", 1)["COUNTS"].sum() #type: ignore
     bkg = fits.getdata(spec_dir / "observation_bkg.pha", 1)["COUNTS"].sum() #type: ignore
 
@@ -85,8 +86,15 @@ def calculate_snr(spec_dir):
     print("Background counts:", bkg)
     print('SNR:', (obs-bkg)/np.sqrt(bkg))
 
+    sourcects = sourcechars["sourceCounts"]
+    bkgcts = sourcechars["backgroundCounts"]
+    print(f'\nActual source counts: {sourcects}')
+    print(f'Actual Background counts: {bkgcts}')
+    print(f'Actual SNR: {sourcects/np.sqrt(bkgcts)}')
+    
+
 
 def gen_observation(mission, sourcechars, output_dir, spec_dir, resp_dir):
     generate_observation_spectrum(mission, sourcechars, spec_dir, resp_dir)
     plot_observation_spectrum(sourcechars["name"], sourcechars["exposure"], output_dir, spec_dir)
-    calculate_snr(spec_dir)
+    calculate_snr(spec_dir, sourcechars)

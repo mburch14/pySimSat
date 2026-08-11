@@ -8,7 +8,9 @@
     "focused": false,
     "cxb": true,
     "albedo": false,
-    "particle": false
+    "particle": false,
+    "sourceCounts": 225000, //actual number of counts in the BAT observation
+    "backgroundCounts": 2056560
     },
 "CRAB-ASTROSAT": {
     "name": "Crab",
@@ -19,6 +21,8 @@
     "focused": false,
     "cxb": false,
     "albedo": false,
-    "particle": true
+    "particle": true,
+    "sourceCounts": 195200, // for 5000s
+    "backgroundCounts": 24000000 // for 5000s (might be wrong)
 }
 }

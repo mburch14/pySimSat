@@ -114,8 +114,8 @@ class BackgroundModel:
         if albedo:
             fluxes += self.albedo(energies, self.detector.geos.fov_sr)
         if particle:
-            fluxes += self.astrosat_background(energies, self.detector.geos.fov_sr)
-            
+            fluxes += 0 #not done yet
+
         table = np.column_stack((energy_lo, energy_hi, fluxes))
         np.savetxt(output, table, fmt="%.6f %.6f %.8e", comments="")
         return output
@@ -141,10 +141,6 @@ class BackgroundModel:
         energy = np.asarray(energy)
         intensity = const / ((energy / EB) ** Gamma1 + (energy / EB) ** Gamma2)
         return intensity * fov_sr
-
-    def astrosat_background(self, energy, fov_sr):
-        #Astrosat background spectrum
-        return 87.4 * energy**(-2.3) * fov_sr
 
 
 class ChargedParticles(BackgroundModel):
