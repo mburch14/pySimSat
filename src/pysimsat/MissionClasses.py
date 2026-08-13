@@ -54,12 +54,12 @@ class geometry:
             self.colw = config["colw"] #cm, collimator width
 
             #fully coded field of view in the width direction; fully coded field of view in the length direction
-            self.wfov = 2*math.atan(self.colw / (2*self.detsep)) #in radians
-            self.lfov = 2*math.atan(self.coll / (2*self.detsep)) #in radians
+            self.wfov = 2 * math.atan(self.colw / self.detsep) #in radians, inside tan may be divided by 2
+            self.lfov = 2 * math.atan(self.coll / self.detsep) #in radians
 
             #half coded field of view in the width direction; half coded field of view in the length direction
-            self.half_coded_w = 2 * math.atan(self.colw / self.detsep) #in radians
-            self.half_coded_l = 2 * math.atan(self.coll / self.detsep) #in radians
+            #self.half_coded_w = 2 * math.atan(self.colw / self.detsep) #in radians
+            #self.half_coded_l = 2 * math.atan(self.coll / self.detsep) #in radians
 
         else:
             #wfov is the field of view in the width direction; lfov is the field of view in the length direction
@@ -73,7 +73,10 @@ class geometry:
         #total field of view in steradians, calculated using the formula for the solid angle of a rectangle
         self.fov_sr = 4 * math.asin(np.sin(self.wfov / 2) * np.sin(self.lfov / 2))
 
-        self.half_coded_fov = 4 * math.asin(np.sin(self.half_coded_w / 2) * np.sin(self.half_coded_l / 2))
+        try:
+            self.half_coded_fov = 4 * math.asin(np.sin(self.half_coded_w / 2) * np.sin(self.half_coded_l / 2))
+        except:
+            pass
 
         #collecting area in cm^2; assuming that the photons are othogonal to the detector. if not safe assumption, multiply by cos(theta).
         self.collecting_area = self.maskOpen * self.detl * self.detw

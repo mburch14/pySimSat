@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import subprocess
 from astropy.io import fits
-import os
 from pathlib import Path
 from xspec import Xset
 
@@ -71,12 +70,12 @@ def plot_background_spectrum(num_det_pixels, exposureTime, output_dir, spec_dir)
     with fits.open(spec_dir / "background.pha") as hdul:
         pha = hdul["SPECTRUM"].data #type: ignore
         counts = np.array(pha["COUNTS"])
-    countRate = ((counts / exposureTime) / dE)/num_det_pixels #puts the y-axis in the correct units.
+    countRate = ((counts / exposureTime) / dE) #puts the y-axis in the correct units.
 
     plt.figure(figsize=(8,5))
     plt.step(energy, countRate, where="mid", color="black")
     plt.xlabel("Energy (keV)")
-    plt.ylabel("Count rate (counts/s/keV/detector)")
+    plt.ylabel("Count rate (counts/s/keV)")
     plt.yscale("log")
     plt.xscale('log')
     plt.title("Simulated background Spectrum")

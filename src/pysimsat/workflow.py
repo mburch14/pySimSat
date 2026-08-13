@@ -36,5 +36,5 @@ def run_all(instrument, source, instrument_json, source_file, output_dir, spec_d
 
     # Generate observation spectrum
     print("\nGenerating observation spectrum...\n")
-    gen_observation(mission, sourcechars, output_dir, spec_dir, resp_dir)
+    gen_observation(mission, sourcechars, output_dir, spec_dir, resp_dir, chars=chars)
     print(f"\nObservation spectrum generated for {instrument} and {source} in the {spec_dir} and {output_dir} directory.\n")

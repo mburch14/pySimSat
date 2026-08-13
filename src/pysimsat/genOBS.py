@@ -2,10 +2,7 @@ from xspec import *
 import matplotlib.pyplot as plt
 import numpy as np
 from astropy.io import fits
-import os
-from pathlib import Path
 from xspec import Xset
-from scipy.stats import chi2
 
 Xset.chatter = 5
 
@@ -66,6 +63,7 @@ def plot_observation_spectrum(sourcename, exposureTime, output_dir, spec_dir):
         pha = hdul["SPECTRUM"].data #type: ignore
         counts = np.array(pha["COUNTS"])
     countRate = ((counts / exposureTime) / dE) #puts the y-axis in the correct units.
+    #print(f'Simulated total count rate: {sum(countRate)}')
 
     plt.figure(figsize=(8,5))
     plt.step(energy, countRate, where="mid", color="black")
@@ -78,23 +76,39 @@ def plot_observation_spectrum(sourcename, exposureTime, output_dir, spec_dir):
     plt.close()
     
 
-def calculate_snr(spec_dir, sourcechars):
+def calculate_snr(spec_dir, sourcechars, chars):
+    print(chars)
     obs = fits.getdata(spec_dir / "observation.pha", 1)["COUNTS"].sum() #type: ignore
     bkg = fits.getdata(spec_dir / "observation_bkg.pha", 1)["COUNTS"].sum() #type: ignore
+    time = sourcechars["exposure"]
+    detArea = chars['config']['detl'] * chars['config']['detw']
+    f = chars['config']['maskOpen']
+    source = (obs-bkg)/detArea
+    background = bkg/detArea
+    Cs = f*detArea*(source + background)
+    Cb = (1-f) * detArea * background
+    std = np.sqrt(((source + background)/(f*detArea)) + (background/((1-f)*detArea)))
+    snr = ((obs-bkg)/np.sqrt(bkg))
+    papersnr = source/std
 
     print("Source counts:", obs-bkg)
     print("Background counts:", bkg)
-    print('SNR:', (obs-bkg)/np.sqrt(bkg))
+    print(f"Source count rate: {(obs-bkg)/time:.2f}")
+    print(f"Background count rate: {(bkg/time):.2f}")
+    print(f'SNR: {snr:.2f}')
+    print(f'paper predicted SNR: {papersnr:.2f}')
 
-    sourcects = sourcechars["sourceCounts"]
-    bkgcts = sourcechars["backgroundCounts"]
-    print(f'\nActual source counts: {sourcects}')
-    print(f'Actual Background counts: {bkgcts}')
-    print(f'Actual SNR: {sourcects/np.sqrt(bkgcts)}')
-    
+    try:
+        sourcects = sourcechars["sourceCounts"]
+        bkgcts = sourcechars["backgroundCounts"]
+        print(f'\nActual source counts: {sourcects}')
+        print(f'Actual Background counts: {bkgcts}')
+        print(f'Actual SNR: {sourcects/np.sqrt(bkgcts):.2f}')
+    except:
+        pass
 
 
-def gen_observation(mission, sourcechars, output_dir, spec_dir, resp_dir):
+def gen_observation(mission, sourcechars, output_dir, spec_dir, resp_dir, chars):
     generate_observation_spectrum(mission, sourcechars, spec_dir, resp_dir)
     plot_observation_spectrum(sourcechars["name"], sourcechars["exposure"], output_dir, spec_dir)
-    calculate_snr(spec_dir, sourcechars)
+    calculate_snr(spec_dir, sourcechars, chars)

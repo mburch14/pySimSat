@@ -27,7 +27,7 @@
 "ASTROSAT":{
     "altitude": 650,
     "inclination": 6,//degrees
-    "e_min": 15,//keV
+    "e_min": 20,//keV
     "e_max": 50,//keV
     "config":{
         "detl": 31.24,//cm
@@ -37,8 +37,8 @@
         "coll": 3.9,//cm
         "colw": 3.9,//cm
         "maskOpen": 0.5,
-        "maskl": 50,//cm
-        "maskw": 50, //cm
+        "maskl": 31.24,//cm
+        "maskw": 31.24, //cm
         "maskh": 0.5, //mm
         "collimator": true},//True if the cubesat is using a collimator, False if it is not.
     "spec_resolution": 575,//eV @1keV
@@ -48,7 +48,35 @@
     "mask_material": "Ta", //mask material
     "mask_material_density": 16.69, //g/cm^3
     "num_det_pixels": 16384,// the number of singular detector pixels that make up the BAT detector
-    "low_ecut": 15 //keV
+    "low_ecut": 20 //keV
+},
+
+"HESAT":{
+    "altitude": 600,
+    "inclination": 1,//degrees
+    "e_min": 30,//keV
+    "e_max": 50,//keV
+    "config":{
+        "detl": 15,//cm
+        "detw": 15,//cm
+        "dett": 0,//mm
+        "detsep": 30, //cm, seporation between mask and detector
+        "coll": 0,//cm
+        "colw": 0,//cm
+        "maskOpen": 0.5,
+        "maskl": 15,//cm
+        "maskw": 15, //cm
+        "maskh": 0, //mm
+        "collimator": true},//True if the cubesat is using a collimator, False if it is not.
+    "spec_resolution": 0,//eV @1keV
+    "spec_gradient": 0,// eV/keV
+    "detector_material": "Cd0.9Zn0.1Te", //detector material
+    "det_material_density": 5.78, //g/cm^3
+    "mask_material": "Pb", //mask material
+    "mask_material_density": 11.34, //g/cm^3
+    "num_det_pixels": 0,// the number of singular detector pixels that make up the BAT detector
+    "low_ecut": 30 //keV
 }
+
 }
 

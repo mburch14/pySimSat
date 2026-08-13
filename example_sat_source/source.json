@@ -5,24 +5,32 @@
     "sourceShape": "powerlaw",
     "normalization": 10.17,
     "phoIndex": 2.15,
-    "focused": false,
+    "localized": false,
     "cxb": true,
     "albedo": false,
     "particle": false,
     "sourceCounts": 225000, //actual number of counts in the BAT observation
-    "backgroundCounts": 2056560
-    },
+    "backgroundCounts": 2056560},
+
 "CRAB-ASTROSAT": {
     "name": "Crab",
     "exposure": 5000, //sec
     "sourceShape": "powerlaw",
     "normalization": 10.17,
     "phoIndex": 2.15,
-    "focused": false,
-    "cxb": false,
-    "albedo": false,
-    "particle": true,
-    "sourceCounts": 195200, // for 5000s
-    "backgroundCounts": 24000000 // for 5000s (might be wrong)
-}
+    "localized": false,
+    "cxb": true,
+    "albedo": true,
+    "particle": false},
+
+"IC4329A-HESAT": {
+    "name": "IC4329A",
+    "exposure": 0, // I do not know (modular?)
+    "sourceShape": "powerlaw",
+    "normalization": 0.0346, //photons/cm2/s/keV at 1keV
+    "phoIndex": 1.73,
+    "localized": false,
+    "cxb": true,
+    "albedo": true,
+    "particle": false}
 }

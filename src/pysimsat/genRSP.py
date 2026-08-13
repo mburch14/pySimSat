@@ -3,7 +3,6 @@ from . import MissionClasses as mc
 import matplotlib.pyplot as plt
 import numpy as np
 import commentjson
-from pathlib import Path
 from xspec import Xset
 
 Xset.chatter = 5
@@ -45,7 +44,7 @@ def build_instrument(chars, sourcechars, instrumentname):
     orb = mc.Orbit(altitude = chars["altitude"], inclination = chars['inclination'])
     geo = mc.geometry( config = chars['config'])
     mission = mc.Mission(instrumentname, chars['e_min'], chars['e_max'])
-    mask = mc.optics(thickness = chars['config']['maskh'], mask_material = chars['mask_material'], mask_density = chars['mask_material_density'], focusing = sourcechars["focused"])
+    mask = mc.optics(thickness = chars['config']['maskh'], mask_material = chars['mask_material'], mask_density = chars['mask_material_density'], focusing = sourcechars["localize"])
     detector = mc.detector(geometry = geo, orbit = orb, mission = mission, optics = mask, res = chars["spec_resolution"], grad = chars["spec_gradient"], low_ecut = chars["low_ecut"], material = chars["detector_material"], mat_density = chars["det_material_density"])
     background = mc.BackgroundModel(detector = detector)
 
@@ -56,7 +55,10 @@ def main(geo, mission, detector, output_dir, resp_dir):
 
     print(f'field of view: {geo.fov_sr} steradians')
 
-    print(f'half coded field of view: {geo.half_coded_fov} steradians')
+    try:
+        print(f'half coded field of view: {geo.half_coded_fov} steradians')
+    except:
+        pass
 
     #Generates the .arf and the .rsp file to be used by xspec. Then, generates a ASCII file for the background spectrum.
     arfname = detector.gen_arf(energy_lo = detector.energy_low, energy_hi = detector.energy_high, arf=resp_dir / f"{mission.name}.arf")
