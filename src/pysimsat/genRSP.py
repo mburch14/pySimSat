@@ -40,13 +40,18 @@ def load_source(source_name, source_json):
 
 def build_instrument(chars, sourcechars, instrumentname):
 
+    #only add solmod if it exists in source.json
+    kwargs = {}
+    if "solmod" in sourcechars:
+        kwargs["solmod"] = sourcechars["solmod"]
+
     #This is for our specific Cubesat
     orb = mc.Orbit(altitude = chars["altitude"], inclination = chars['inclination'])
     geo = mc.geometry( config = chars['config'])
     mission = mc.Mission(instrumentname, chars['e_min'], chars['e_max'])
     mask = mc.optics(thickness = chars['config']['maskh'], mask_material = chars['mask_material'], mask_density = chars['mask_material_density'], localized = sourcechars["localized"])
     detector = mc.detector(geometry = geo, orbit = orb, mission = mission, optics = mask, res = chars["spec_resolution"], grad = chars["spec_gradient"], low_ecut = chars["low_ecut"], material = chars["detector_material"], mat_density = chars["det_material_density"])
-    background = mc.BackgroundModel(detector = detector, orbit = orb)
+    background = mc.BackgroundModel(detector = detector, orbit = orb, **({"solmod": sourcechars["solmod"]} if "solmod" in sourcechars else {}))
 
     return orb, geo, mission, detector, background, mask
 

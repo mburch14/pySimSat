@@ -87,26 +87,8 @@ class BackgroundModel:
     def __init__(self, detector, orbit, solmod = 0.5):
         self.detector = detector
         self.inclination = orbit.inclination
-        self.altitude = orbit.inclination
+        self.altitude = orbit.altitude
         self.solmod = solmod
-
-
-    def F_M(self, energy, Mc2, Z, phi):
-        #energy: particle kinetic energy, GeV
-        #Mc2: particle rest mass energy, GeV
-        #Z: charge, unitless
-        #phi: solar modulation factor, GV, 0.55GV at solar minimum, 1.1 for GV at solar maximum
-        return ((energy + Mc2)**2 - Mc2**2)/((energy + abs(Z)*phi + Mc2)**2 - Mc2**2)
-    
-    def geomagnetic_cutoff(self, R, altitude, theta_M, r):
-        R_E = 6371 #km
-        R_cut = (14.5* (1+altitude/R_E)**-2) * (np.cos(theta_M))**-2 #GV
-        return 1/ (1 + (R/R_cut)**-r)
-    
-    def R_E (self, E, mc2, Z):
-        energy = np.asarray(E)
-        pc = np.sqrt((energy + mc2)**2 - mc2**2) #GeV
-        return pc/abs(Z) #GV4
 
     def gen_spectrum_table(self, output, dcxr, albedo, cralbedo):
         energies = self.detector.energy #Gives energy bin midpoints in keV
@@ -149,7 +131,7 @@ class BackgroundModel:
         #Albedo spectrum from cosmic rays from Hard X-ray emission of the Earth’s atmosphere: Monte Carlo simulations by Sazonov et al. 2021
         #In units of photons/cm2/s/keV
         energy = np.asarray(energy)
-        C = self.getCRalbedoC(solmod, self.inclination, self.altitude)
+        C = self.getCRalbedoC(solmod=solmod, inclination =self.inclination, altitude= self.altitude)
         intensity = C / ((energy/44)**-5 + (energy/44)**1.4)
         return intensity * fov_sr        
         
@@ -158,9 +140,7 @@ class BackgroundModel:
 
         #the geomagnetic latitude is approximated as |i/2|
         theta_M = np.deg2rad(inclination/2)
-
         earth_radius = 6371 #km
-
         #approximation of the geomagnetic cutoff in units GV
         R_cut = (14.5* (1+altitude/earth_radius)**-2) * (np.cos(theta_M))**4
 
@@ -171,7 +151,6 @@ class BackgroundModel:
         term3 = (1 + (R_cut / denom)**2)**-0.5
         C = term1 * term2 * term3
 
-        print("C =", C)
         return C
 
 

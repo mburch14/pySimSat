@@ -25,7 +25,7 @@
     },
 
 "ASTROSAT":{
-    "altitude": 650,
+    "altitude": 600,//km
     "inclination": 6,//degrees
     "e_min": 22,//keV
     "e_max": 200,//keV
