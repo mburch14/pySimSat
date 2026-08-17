@@ -77,7 +77,6 @@ def plot_observation_spectrum(sourcename, exposureTime, output_dir, spec_dir):
     
 
 def calculate_snr(spec_dir, sourcechars, chars):
-    print(chars)
     obs = fits.getdata(spec_dir / "observation.pha", 1)["COUNTS"].sum() #type: ignore
     bkg = fits.getdata(spec_dir / "observation_bkg.pha", 1)["COUNTS"].sum() #type: ignore
     time = sourcechars["exposure"]
@@ -85,25 +84,24 @@ def calculate_snr(spec_dir, sourcechars, chars):
     f = chars['config']['maskOpen']
     source = (obs-bkg)/detArea
     background = bkg/detArea
-    Cs = f*detArea*(source + background)
-    Cb = (1-f) * detArea * background
     std = np.sqrt(((source + background)/(f*detArea)) + (background/((1-f)*detArea)))
-    snr = ((obs-bkg)/np.sqrt(bkg))
-    papersnr = source/std
+    
+    snr = source/std
 
-    print("Source counts:", obs-bkg)
-    print("Background counts:", bkg)
     print(f"Source count rate: {(obs-bkg)/time:.2f}")
-    print(f"Background count rate: {(bkg/time):.2f}")
-    print(f'SNR: {snr:.2f}')
-    print(f'paper predicted SNR: {papersnr:.2f}')
+    print(f"Background count rate: {(bkg)/time:.2f}")
+    print(f'paper predicted SNR: {snr:.2f}')
 
     try:
         sourcects = sourcechars["sourceCounts"]
         bkgcts = sourcechars["backgroundCounts"]
-        print(f'\nActual source counts: {sourcects}')
-        print(f'Actual Background counts: {bkgcts}')
-        print(f'Actual SNR: {sourcects/np.sqrt(bkgcts):.2f}')
+        actsource = sourcects/detArea
+        actbkg = bkgcts/detArea
+        actstd = np.sqrt(((actsource + actbkg)/(f*detArea)) + (actbkg/((1-f)*detArea)))
+        actsnr = actsource / actstd
+        print(f'\nActual source count rate: {sourcects/time:.2f}')
+        print(f'Actual Background count rate: {bkgcts/time:.2f}')
+        print(f'Actual SNR: {actsnr:.2f}')
     except:
         pass
 
