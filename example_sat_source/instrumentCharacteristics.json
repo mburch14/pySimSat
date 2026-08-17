@@ -27,8 +27,8 @@
 "ASTROSAT":{
     "altitude": 650,
     "inclination": 6,//degrees
-    "e_min": 20,//keV
-    "e_max": 50,//keV
+    "e_min": 22,//keV
+    "e_max": 200,//keV
     "config":{
         "detl": 31.24,//cm
         "detw": 31.24,//cm
@@ -48,7 +48,7 @@
     "mask_material": "Ta", //mask material
     "mask_material_density": 16.69, //g/cm^3
     "num_det_pixels": 16384,// the number of singular detector pixels that make up the BAT detector
-    "low_ecut": 20 //keV
+    "low_ecut": 22 //keV
 },
 
 "HESAT":{

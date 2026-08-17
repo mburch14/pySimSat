@@ -40,7 +40,7 @@ def build_satellite(instrument, instrument_json, source, source_json):
     orb = mc.Orbit(altitude = chars["altitude"], inclination = chars['inclination'])
     geo = mc.geometry( config = chars['config'])
     mission = mc.Mission(instrument, chars['e_min'], chars['e_max'])
-    mask = mc.optics(thickness = chars['config']['maskh'], mask_material = chars['mask_material'], mask_density = chars['mask_material_density'], focusing = sourcechars["focused"])
+    mask = mc.optics(thickness = chars['config']['maskh'], mask_material = chars['mask_material'], mask_density = chars['mask_material_density'], localized = sourcechars["localized"])
     detector = mc.detector(geometry = geo, orbit = orb, mission = mission, optics = mask, res = chars["spec_resolution"], grad = chars["spec_gradient"], low_ecut = chars["low_ecut"], material = chars["detector_material"], mat_density = chars["det_material_density"])
     background = mc.BackgroundModel(detector = detector)
 

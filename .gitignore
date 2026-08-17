@@ -19,3 +19,5 @@ __pycache__/
 *.fits
 *.img
 modeM0/
+/testAlbedo.py
+

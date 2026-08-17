@@ -6,9 +6,9 @@
     "normalization": 10.17,
     "phoIndex": 2.15,
     "localized": false,
-    "cxb": true,
+    "dcxr": true,
     "albedo": false,
-    "particle": false,
+    "cralbedo": false, //cosmic ray albedo
     "sourceCounts": 225000, //actual number of counts in the BAT observation
     "backgroundCounts": 2056560},
 
@@ -18,10 +18,11 @@
     "sourceShape": "powerlaw",
     "normalization": 10.17,
     "phoIndex": 2.15,
+    "solmod": 0.5,
     "localized": false,
-    "cxb": true,
+    "dcxr": true,
     "albedo": true,
-    "particle": false},
+    "cralbedo": true}, //cosmic ray albedo
 
 "IC4329A-HESAT": {
     "name": "IC4329A",
@@ -30,7 +31,7 @@
     "normalization": 0.0346, //photons/cm2/s/keV at 1keV
     "phoIndex": 1.73,
     "localized": false,
-    "cxb": true,
+    "dcxr": true,
     "albedo": true,
-    "particle": false}
+    "cralbedo": true} //cosmic ray albedo
 }

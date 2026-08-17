@@ -84,8 +84,11 @@ class geometry:
 
 class BackgroundModel:
 
-    def __init__(self, detector):
+    def __init__(self, detector, orbit, solmod = 0.5):
         self.detector = detector
+        self.inclination = orbit.inclination
+        self.altitude = orbit.inclination
+        self.solmod = solmod
 
 
     def F_M(self, energy, Mc2, Z, phi):
@@ -105,93 +108,71 @@ class BackgroundModel:
         pc = np.sqrt((energy + mc2)**2 - mc2**2) #GeV
         return pc/abs(Z) #GV4
 
-    def gen_spectrum_table(self, output, cxb, albedo, particle):
+    def gen_spectrum_table(self, output, dcxr, albedo, cralbedo):
         energies = self.detector.energy #Gives energy bin midpoints in keV
         energy_lo = self.detector.energy_low #Gives energy bin lower bounds in keV
         energy_hi = self.detector.energy_high #Gives energy bin upper bounds in keV
 
         #flux in units of photons/cm2/s/keV
         fluxes = 0
-        if cxb:
-            fluxes = 1.33 * np.array(self.cxb(energies, self.detector.geos.fov_sr))
+        if dcxr:
+            fluxes += 1.33 * np.array(self.dcxr(energies, self.detector.geos.fov_sr))
         if albedo:
-            fluxes += self.albedo(energies, self.detector.geos.fov_sr)
-        if particle:
-            fluxes += 0 #not done yet
+            fluxes += np.array(self.albedo(energies, self.detector.geos.fov_sr))
+        if cralbedo:
+            fluxes += np.array(self.cosmicrayalbedo(energies, self.detector.geos.fov_sr, self.solmod))
 
         table = np.column_stack((energy_lo, energy_hi, fluxes))
         np.savetxt(output, table, fmt="%.6f %.6f %.8e", comments="")
         return output
 
-    def cxb(self, energy, fov_sr):
-        #Cosmic X-ray background spectrum from Gruber et al. 1999, ApJ, 520, 124
+    def dcxr(self, energy, fov_sr):
+        #This is from Insight-HXMT measurements of the diffuse X-ray background by Huang et al. 2022
         #In units of photons/cm2/s/keV
-        C = 10.15e-2
-        EB = 29.99  # keV
-        gamma1 = 1.32
-        gamma2 = 2.88
-        energy = np.asarray(energy)
-        intensity = C / ((energy / EB) ** gamma1 + (energy / EB) ** gamma2)
+        intensity = 9.67 * energy**-1.47
+
         return intensity * fov_sr
 
     def albedo(self, energy, fov_sr):
-        #Albedo spectrum from Ajello et al. 2008, ApJ, 689, 666
+
+        #Albedo spectrum from churazov et al. Earth X-ray albedo for cosmic X-ray background radiation in the 1–1000 keV band
         #In units of photons/cm2/s/keV
-        EB = 33.7  #in keV
-        Gamma1 = -5
-        Gamma2 = 1.72
-        const = 1.48e-2
         energy = np.asarray(energy)
-        intensity = const / ((energy / EB) ** Gamma1 + (energy / EB) ** Gamma2)
-        return intensity * fov_sr
+        term1 = 1.22/ (((energy/28.5)**-2.54) + ((energy/51.3)**1.57) - 0.37)
+        term2 = (2.93 + (energy/3.08)**4) / (1 + (energy/3.08)**4)
+        term3 = (0.123 + (energy/91.83)**3.44) / (1 + (energy/91.83)**3.44)
+        cxbint = self.dcxr(energy, fov_sr)
+        
+        return term1*term2*term3*cxbint*fov_sr
 
+    def cosmicrayalbedo(self, energy, fov_sr, solmod):
+        #Albedo spectrum from cosmic rays from Hard X-ray emission of the Earth’s atmosphere: Monte Carlo simulations by Sazonov et al. 2021
+        #In units of photons/cm2/s/keV
+        energy = np.asarray(energy)
+        C = self.getCRalbedoC(solmod, self.inclination, self.altitude)
+        intensity = C / ((energy/44)**-5 + (energy/44)**1.4)
+        return intensity * fov_sr        
+        
+    def getCRalbedoC(self, inclination, altitude, solmod):
+        #normalization constant for cosmicrayalbedo (units: 1/s/cm2/sr)
 
-class ChargedParticles(BackgroundModel):
-    def __init__(self, detector, inclination, altitude, phi):
-        super().__init__(detector)
-        self.inclination = inclination
-        self.altitude = altitude
-        self.phi = phi
+        #the geomagnetic latitude is approximated as |i/2|
+        theta_M = np.deg2rad(inclination/2)
 
-    def primaryIntensity(self, fov_sr):
-        return self.protonIntensity(fov_sr) + self.electronpositronIntensity(fov_sr) + self.alphaIntensity(fov_sr)
-    
-    def protonIntensity(self, fov_sr):
-        #Taken from Background simulations for the Large Area Detector onboard LOFT (Campana et al, 2013)
-        E = np.logspace(-3, 2, 1000)#GeV
-        E_IS = E + self.phi #This is for F(E + Z\psi)
-        M_pc2 = 0.938 #GeV, rest mass energy of a proton
-        R_E = self.R_E(E, M_pc2, 1) #GV, the last is Z, which is 1 for proton
-        R_IS = self.R_E(E_IS, M_pc2, 1)  # for FU
-        C = self.geomagnetic_cutoff(R_E, self.altitude, np.deg2rad(self.inclination/2), r = 12) #unitless; r value is 12 for protons; theta_M is approximated as i/2???
-        F_M = self.F_M(energy=E, Mc2=M_pc2, Z=1, phi=self.phi) #unitless; need to fix phi!!
-        F_U = 1e-7 * 23.9 * R_IS**-2.83 # particles/cm2/s/sr/keV
-        return F_U * F_M * C * fov_sr
-    
-    def electronpositronIntensity(self, fov_sr):
-        #Taken from Background simulations for the Large Area Detector onboard LOFT (Campana et al, 2013)
-        E = np.logspace(-3, 2, 1000)#GeV
-        E_IS = E + self.phi #This is for F(E + Z\psi)
-        M_pc2 = 0.00051 #GeV, electron rest mass energy
-        R_E = self.R_E(E, M_pc2, 1) #GV, the last is Z, which has a magnitude of 1 for electrons and positrons I DO NOT KNOW IF IT IS SUPPOSED TO BE THE ABSOLUTE VALUE OR NOT!!!
-        R_IS = self.R_E(E_IS, M_pc2, 1)  # for FU
-        C = self.geomagnetic_cutoff(R_E, self.altitude, np.deg2rad(self.inclination/2), r = 6) #unitless; r value is 6 for electrons and positrons; theta_M is approximated as i/2???
-        F_M = self.F_M(energy=E, Mc2=M_pc2, Z=1, phi=self.phi) #unitless; need to fix phi!!!
-        F_Uneg = 1e-7 * 0.65 * R_IS**-3.3 # particles/cm2/s/sr/keV
-        F_Upos = 1e-7 * 0.051 * R_IS**-3.3 # particles/cm2/s/sr/keV
-        return (F_Uneg + F_Upos) * F_M * C * fov_sr
-    
-    def alphaIntensity(self, fov_sr):
-        #Taken from Background simulations for the Large Area Detector onboard LOFT (Campana et al, 2013)
-        E = np.logspace(-3, 2, 1000)#GeV
-        E_IS = E + 2*self.phi #This is for F(E + Z\psi)
-        M_pc2 = 3.727 #GeV, alpha particle (2proton, 2 neuton) rest mass energy
-        R_E = self.R_E(E, M_pc2, 2) #GV, the last is Z, which has a magnitude of 2 for ionized helium
-        R_IS = self.R_E(E_IS, M_pc2, 2)  # for FU
-        C = self.geomagnetic_cutoff(R_E, self.altitude, np.deg2rad(self.inclination/2), r = 12) #unitless; r value is 12 for helium; theta_M is approximated as i/2???
-        F_M = self.F_M(energy=E, Mc2=M_pc2, Z=2, phi=self.phi) #unitless; need to fix phi!!!
-        F_U = 1e-7 * 1.5 * R_IS**-2.7 # particles/cm2/s/sr/keV 
-        return F_U * F_M * C * fov_sr
+        earth_radius = 6371 #km
+
+        #approximation of the geomagnetic cutoff in units GV
+        R_cut = (14.5* (1+altitude/earth_radius)**-2) * (np.cos(theta_M))**4
+
+        #equation in the Sazonov et al paper
+        term1 = 1.47 * 0.0178
+        term2 = ((solmod / 2.8)**0.4 + (solmod / 2.8)**1.5)**-1
+        denom = (1.3 * (solmod**0.25) * (1 + 2.5 * solmod**0.4))
+        term3 = (1 + (R_cut / denom)**2)**-0.5
+        C = term1 * term2 * term3
+
+        print("C =", C)
+        return C
 
 
 class detector():
@@ -225,7 +206,7 @@ class detector():
         tmask = self.optics.transmission(energy)
         acoll += tmask *(1- f)*self.geos.detl*self.geos.detw
 
-        if self.optics.focusing:
+        if self.optics.localized:
             Tmean = f * 1 + (1 - f) * tmask
             variance = f*(1 -Tmean)**2 + (1 -f)*(tmask- Tmean)**2
             coding_eff = np.sqrt(variance)
@@ -293,9 +274,9 @@ class detector():
 
 
 class optics():
-    def __init__(self, thickness, mask_material, mask_density, focusing):
+    def __init__(self, thickness, mask_material, mask_density, localized):
         self.thickness = thickness
-        self.focusing = focusing
+        self.localized = localized
         self.mask_element = mask_material
         self.mask_density = mask_density
 
