@@ -111,7 +111,7 @@ class BackgroundModel:
     def dcxr(self, energy, fov_sr):
         #This is from Insight-HXMT measurements of the diffuse X-ray background by Huang et al. 2022
         #In units of photons/cm2/s/keV
-        intensity = 9.67 * energy**-1.47
+        intensity = 9.67 * energy**-1.33
 
         return intensity * fov_sr
 
