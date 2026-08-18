@@ -21,7 +21,8 @@
     "mask_material": "Pb", // mask material
     "mask_material_density": 11.34, // g/cm^3
     "num_det_pixels": 32768,// the number of singular detector pixels that make up the BAT detector
-    "low_ecut": 15//kev
+    "low_ecut": 15,//kev
+    "activedetector": 0.5
     },
 
 "ASTROSAT":{
@@ -48,7 +49,8 @@
     "mask_material": "Ta", //mask material
     "mask_material_density": 16.69, //g/cm^3
     "num_det_pixels": 16384,// the number of singular detector pixels that make up the BAT detector
-    "low_ecut": 22 //keV
+    "low_ecut": 22,//kev
+    "activedetector": 1
 },
 
 "HESAT":{
@@ -75,7 +77,8 @@
     "mask_material": "Pb", //mask material
     "mask_material_density": 11.34, //g/cm^3
     "num_det_pixels": 0,// the number of singular detector pixels that make up the BAT detector
-    "low_ecut": 30 //keV
+    "low_ecut": 30, //kev
+    "activedetector": 1
 }
 
 }

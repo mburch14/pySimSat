@@ -5,12 +5,12 @@
     "sourceShape": "powerlaw",
     "normalization": 10.17,
     "phoIndex": 2.15,
-    "localized": true, //Bat has a large field of view, so we need to localize where the source is coming from.
+    "localized": false,
     "dcxr": true, //diffuse cosmic x-ray is included
     "albedo": false, // Albedo photons, BAT is always pointed ~30 degrees from the earth horizon to avoid damaging other instruments on swift.
     "cralbedo": false, //cosmic ray induced albedo, not included for bat
-    "sourceCounts": 225000, //actual number of counts in the BAT observation
-    "backgroundCounts": 2056561},
+    "sourceCounts": 144594, //actual number of counts in the BAT observation, approximated using The 70 Month Swift-BAT All-Sky Hard X-Ray Survey assuming that half of the detectors were active
+    "backgroundCounts": 2056561}, // correct background counts (calculated by integrating swbbkgspec20041120v001.pha)
 
 "CRAB-ASTROSAT": {
     "name": "Crab",

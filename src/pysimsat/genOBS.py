@@ -63,7 +63,6 @@ def plot_observation_spectrum(sourcename, exposureTime, output_dir, spec_dir):
         pha = hdul["SPECTRUM"].data #type: ignore
         counts = np.array(pha["COUNTS"])
     countRate = ((counts / exposureTime) / dE) #puts the y-axis in the correct units.
-    #print(f'Simulated total count rate: {sum(countRate)}')
 
     plt.figure(figsize=(8,5))
     plt.step(energy, countRate, where="mid", color="black")
@@ -90,7 +89,7 @@ def calculate_snr(spec_dir, sourcechars, chars):
 
     print(f"Source count rate: {(obs-bkg)/time:.2f}")
     print(f"Background count rate: {(bkg)/time:.2f}")
-    print(f'paper predicted SNR: {snr:.2f}')
+    print(f'Simulated SNR: {snr:.2f}')
 
     try:
         sourcects = sourcechars["sourceCounts"]

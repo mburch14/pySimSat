@@ -155,7 +155,7 @@ class BackgroundModel:
 
 
 class detector():
-    def __init__(self, geometry, orbit, mission, optics, res, grad, low_ecut, material, mat_density):
+    def __init__(self, geometry, orbit, mission, optics, res, grad, low_ecut, material, mat_density, activedetector):
         self.geos = geometry
         self.orbs = orbit
         self.missions = mission
@@ -169,6 +169,7 @@ class detector():
         self.low_ecut = low_ecut
         self.material_formula = material
         self.material_density = mat_density
+        self.activedetector = activedetector
 
     def effective_area(self, energy):
         
@@ -196,7 +197,7 @@ class detector():
         sigma = fwhm_at_ecut / (2*np.sqrt(2*np.log(2)))
         weight = 0.5 * (1 + erf((energy-self.low_ecut) / (np.sqrt(2)*sigma)))
 
-        return coding_eff * weight * acoll * tdet
+        return coding_eff * weight * acoll * tdet * self.activedetector
 
     def det_absorption(self, energy):
         #Energy in kev. xraydb.mu_elam takes energy in eV, so we multiply by 1000 to convert from keV to eV.
