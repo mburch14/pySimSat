@@ -90,7 +90,7 @@ class BackgroundModel:
         self.altitude = orbit.altitude
         self.solmod = solmod
 
-    def gen_spectrum_table(self, output, dcxr, albedo, cralbedo):
+    def gen_spectrum_table(self, output, dcxr, albedo, cralbedo, cosmicrays):
         energies = self.detector.energy #Gives energy bin midpoints in keV
         energy_lo = self.detector.energy_low #Gives energy bin lower bounds in keV
         energy_hi = self.detector.energy_high #Gives energy bin upper bounds in keV
@@ -98,11 +98,13 @@ class BackgroundModel:
         #flux in units of photons/cm2/s/keV
         fluxes = 0
         if dcxr:
-            fluxes += 1.33 * np.array(self.dcxr(energies, self.detector.geos.fov_sr))
+            fluxes += np.array(self.dcxr(energies, self.detector.geos.fov_sr))
         if albedo:
             fluxes += np.array(self.albedo(energies, self.detector.geos.fov_sr))
         if cralbedo:
             fluxes += np.array(self.cosmicrayalbedo(energies, self.detector.geos.fov_sr, self.solmod))
+        if cosmicrays:
+            fluxes += 0.33 * np.array(self.dcxr(energies, 0.67))
 
         table = np.column_stack((energy_lo, energy_hi, fluxes))
         np.savetxt(output, table, fmt="%.6f %.6f %.8e", comments="")
@@ -125,7 +127,7 @@ class BackgroundModel:
         term3 = (0.123 + (energy/91.83)**3.44) / (1 + (energy/91.83)**3.44)
         cxbint = self.dcxr(energy, fov_sr)
         
-        return term1*term2*term3*cxbint*fov_sr
+        return term1*term2*term3*cxbint
 
     def cosmicrayalbedo(self, energy, fov_sr, solmod):
         #Albedo spectrum from cosmic rays from Hard X-ray emission of the Earth’s atmosphere: Monte Carlo simulations by Sazonov et al. 2021

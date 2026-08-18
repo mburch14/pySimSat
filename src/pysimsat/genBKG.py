@@ -41,7 +41,7 @@ def generate_background_spectrum(background, mission, sourcechars, spec_dir, res
     if back_dat_path.exists():
         back_dat_path.unlink()
 
-    backgroundname = background.gen_spectrum_table(output = spec_dir / 'background.dat', dcxr = sourcechars["dcxr"], albedo= sourcechars["albedo"], cralbedo= sourcechars["cralbedo"])
+    backgroundname = background.gen_spectrum_table(output = spec_dir / 'background.dat', dcxr = sourcechars["dcxr"], albedo= sourcechars["albedo"], cralbedo= sourcechars["cralbedo"], cosmicrays = sourcechars["cosmicrays"])
 
     AllData.clear()
     AllModels.clear()

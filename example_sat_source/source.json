@@ -9,6 +9,7 @@
     "dcxr": true, //diffuse cosmic x-ray is included
     "albedo": false, // Albedo photons, BAT is always pointed ~30 degrees from the earth horizon to avoid damaging other instruments on swift.
     "cralbedo": false, //cosmic ray induced albedo, not included for bat
+    "cosmicrays": true,
     "sourceCounts": 144594, //actual number of counts in the BAT observation, approximated using The 70 Month Swift-BAT All-Sky Hard X-Ray Survey assuming that half of the detectors were active
     "backgroundCounts": 2056561}, // correct background counts (calculated by integrating swbbkgspec20041120v001.pha)
 
@@ -22,7 +23,10 @@
     "localized": false,
     "dcxr": true,
     "albedo": true,
-    "cralbedo": true}, //cosmic ray albedo
+    "cosmicrays": true,
+    "cralbedo": true, //cosmic ray albedo
+    "sourceCounts": 195187.52, //actual number of counts in the CZTI observation, approximated using The Cadmium Zinc Telluride Imager on AstroSat
+    "backgroundCounts": 1886565},// actual background counts (calculated by integrating swbbkgspec20041120v001.pha)
 
 "IC4329A-HESAT": {
     "name": "IC4329A",
@@ -33,5 +37,6 @@
     "localized": false,
     "dcxr": true,
     "albedo": true,
-    "cralbedo": true} //cosmic ray albedo
+    "cralbedo": true, //cosmic ray albedo
+    "cosmicrays": true}
 }

@@ -50,7 +50,7 @@
     "mask_material_density": 16.69, //g/cm^3
     "num_det_pixels": 16384,// the number of singular detector pixels that make up the BAT detector
     "low_ecut": 22,//kev
-    "activedetector": 1
+    "activedetector": 0.92
 },
 
 "HESAT":{
