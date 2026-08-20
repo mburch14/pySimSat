@@ -121,7 +121,7 @@ class BackgroundModel:
         #This is from Insight-HXMT measurements of the diffuse X-ray background by Huang et al. 2022
         #In units of photons/cm2/s/keV
 
-        intensity = 9.67 * energy**-1.33
+        intensity = 9.5 * (energy**-1.33)
 
         return intensity * fov_sr
 
