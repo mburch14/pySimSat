@@ -4,17 +4,17 @@ from .genOBS import gen_observation
 from pathlib import Path
 
 def run_all(instrument, source, instrument_json, source_file, output_dir, spec_dir, resp_dir):
-    """
-    Run the complete PySimSat simulation pipeline.
-
-    Steps:
-    1. Generate response files
-    2. Generate background spectrum
-    3. Generate observation spectrum
-
-    ex: pysimsat.workflow.run_all("SWIFTBAT", "CRAB-SWIFTBAT", "example_sat_source/instrumentCharacteristics.json", "example_sat_source/source.json", "outputs", "spectrum_files", "response_files")
-    or pysimsat.workflow.run_all("ASTROSAT", "CRAB-ASTROSAT", "example_sat_source/instrumentCharacteristics.json", "example_sat_source/source.json", "outputs", "spectrum_files", "response_files")
-    """
+###    Run the complete PySimSat simulation pipeline.
+###
+###    Steps:
+###    1. Generate response files
+###    2. Generate background spectrum
+###    3. Generate observation spectrum
+###
+###    Example terminal input is given for Swift/BAT (top) and CZTI (bottom)
+###
+###    pysimsat.workflow.run_all("SWIFTBAT", "CRAB-SWIFTBAT", "example_sat_source/instrumentCharacteristics.json", "example_sat_source/source.json", "outputs", "spectrum_files", "response_files")
+###    pysimsat.workflow.run_all("ASTROSAT", "CRAB-ASTROSAT", "example_sat_source/instrumentCharacteristics.json", "example_sat_source/source.json", "outputs", "spectrum_files", "response_files")
 
     output_dir = Path(output_dir)
     spec_dir = Path(spec_dir)

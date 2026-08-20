@@ -7,6 +7,7 @@ from scipy.special import erf
 from pathlib import Path
 
 class Mission:
+    ## basic, must know characteristics of the mission. May be usefule later. ###
 
     def __init__(self, name, energymin, energymax):
         self.name = name
@@ -17,6 +18,7 @@ class Mission:
 
 
 class Orbit:
+    ### characteristics of the satellites orbit. ###
 
     def __init__(self, altitude, inclination):
         self.earthradius = 6378.137  # km
@@ -30,6 +32,7 @@ class Orbit:
 
 
 class geometry:
+    ### geometry of the satellite, detector, and collimator. Used to calculate the field of view. ###
 
     def __init__(self, config):
 
@@ -57,10 +60,6 @@ class geometry:
             self.wfov = 2 * math.atan(self.colw / self.detsep) #in radians, inside tan may be divided by 2
             self.lfov = 2 * math.atan(self.coll / self.detsep) #in radians
 
-            #half coded field of view in the width direction; half coded field of view in the length direction
-            #self.half_coded_w = 2 * math.atan(self.colw / self.detsep) #in radians
-            #self.half_coded_l = 2 * math.atan(self.coll / self.detsep) #in radians
-
         else:
             #wfov is the field of view in the width direction; lfov is the field of view in the length direction
             self.wfov = 2*math.atan((self.maskw -self.detw) / (2*(self.detsep))) #in radians
@@ -83,6 +82,7 @@ class geometry:
 
 
 class BackgroundModel:
+    ### Used to estimate the background spectra for the satellite ###
 
     def __init__(self, detector, orbit, solmod = 0.5):
         self.detector = detector
@@ -97,13 +97,20 @@ class BackgroundModel:
 
         #flux in units of photons/cm2/s/keV
         fluxes = 0
-        if dcxr:
+        if dcxr: # diffuse cosmic x-ray background
+
             fluxes += np.array(self.dcxr(energies, self.detector.geos.fov_sr))
-        if albedo:
+
+        if albedo: # albedo photons reflected off the earths atmosphere
+
             fluxes += np.array(self.albedo(energies, self.detector.geos.fov_sr))
-        if cralbedo:
+
+        if cralbedo: #cosmic ray induced background
+
             fluxes += np.array(self.cosmicrayalbedo(energies, self.detector.geos.fov_sr, self.solmod))
-        if cosmicrays:
+
+        if cosmicrays: #charged particle background (shape incorrect)
+
             fluxes += 0.33 * np.array(self.dcxr(energies, 0.67))
 
         table = np.column_stack((energy_lo, energy_hi, fluxes))
@@ -113,6 +120,7 @@ class BackgroundModel:
     def dcxr(self, energy, fov_sr):
         #This is from Insight-HXMT measurements of the diffuse X-ray background by Huang et al. 2022
         #In units of photons/cm2/s/keV
+
         intensity = 9.67 * energy**-1.33
 
         return intensity * fov_sr
@@ -121,6 +129,7 @@ class BackgroundModel:
 
         #Albedo spectrum from churazov et al. Earth X-ray albedo for cosmic X-ray background radiation in the 1–1000 keV band
         #In units of photons/cm2/s/keV
+
         energy = np.asarray(energy)
         term1 = 1.22/ (((energy/28.5)**-2.54) + ((energy/51.3)**1.57) - 0.37)
         term2 = (2.93 + (energy/3.08)**4) / (1 + (energy/3.08)**4)
@@ -132,17 +141,22 @@ class BackgroundModel:
     def cosmicrayalbedo(self, energy, fov_sr, solmod):
         #Albedo spectrum from cosmic rays from Hard X-ray emission of the Earth’s atmosphere: Monte Carlo simulations by Sazonov et al. 2021
         #In units of photons/cm2/s/keV
+
         energy = np.asarray(energy)
         C = self.getCRalbedoC(solmod=solmod, inclination =self.inclination, altitude= self.altitude)
         intensity = C / ((energy/44)**-5 + (energy/44)**1.4)
+
         return intensity * fov_sr        
         
     def getCRalbedoC(self, inclination, altitude, solmod):
+        #Cosmic Ray-induced background from Hard X-ray emission of the Earth's atmosphere: Monte Carlo simulations by Sazonov et al. 2021
+
         #normalization constant for cosmicrayalbedo (units: 1/s/cm2/sr)
 
         #the geomagnetic latitude is approximated as |i/2|
         theta_M = np.deg2rad(inclination/2)
         earth_radius = 6371 #km
+
         #approximation of the geomagnetic cutoff in units GV
         R_cut = (14.5* (1+altitude/earth_radius)**-2) * (np.cos(theta_M))**4
 
@@ -151,6 +165,7 @@ class BackgroundModel:
         term2 = ((solmod / 2.8)**0.4 + (solmod / 2.8)**1.5)**-1
         denom = (1.3 * (solmod**0.25) * (1 + 2.5 * solmod**0.4))
         term3 = (1 + (R_cut / denom)**2)**-0.5
+
         C = term1 * term2 * term3
 
         return C
@@ -158,6 +173,8 @@ class BackgroundModel:
 
 class detector():
     def __init__(self, geometry, orbit, mission, optics, res, grad, low_ecut, material, mat_density, activedetector):
+        ### get the qualities of the detector including the attenuation and volume. Used to calculate the effective area and generate ARF/RSP ###
+
         self.geos = geometry
         self.orbs = orbit
         self.missions = mission
@@ -174,27 +191,32 @@ class detector():
         self.activedetector = activedetector
 
     def effective_area(self, energy):
-        
-        #Add in the likelihood that some photons may be transmitted through the mask.
+
         acoll = self.geos.collecting_area
 
-        coding_eff = 1
+        coding_eff = 1 ### if we do not care about localization
 
         #Energy in kev. xraydb.mu_elam takes energy in eV, so we multiply by 1000 to convert from keV to eV.
         atten_const = xraydb.material_mu(self.material_formula, energy * 1000, density=self.material_density)
         tdet = 1-np.exp(-atten_const * self.geos.detthickness * 0.1) #The 0.1 is to convert from mm to cm, since the thickness is in mm and the attenuation constant is in cm^-1.
 
-        f = self.geos.maskOpen
-        tmask = self.optics.transmission(energy)
-        acoll += tmask *(1- f)*self.geos.detl*self.geos.detw
+        f = self.geos.maskOpen #percent of the mask that is open
+        tmask = self.optics.transmission(energy) #transmission through the closed cells of the mask
+        acoll += tmask *(1- f)*self.geos.detl*self.geos.detw #Extra area aquired from photons making it though the mask
 
         if self.optics.localized:
-            Tmean = f * 1 + (1 - f) * tmask
-            variance = f*(1 -Tmean)**2 + (1 -f)*(tmask- Tmean)**2
-            coding_eff = np.sqrt(variance)
+            ### We can about the standard deviation of the transmission through the mask. At high energies, if the mask is translucent, 
+            ### then there is no shadow to localize anything. In this case, the standard deviation of transmission through the mask is 0
+            ### We care about the difference in transmission between an open mask cell and a closed mask cell. Assuming a completely
+            ### opaque mask and a mask open fraction of 50%, the standard deviation is 0.5. That is the standard deviation of the
+            ### transmission through the mask.
+
+            Tmean = f * 1 + (1 - f) * tmask #mean transmission through the coded aperture mask
+            variance = f*(1 -Tmean)**2 + (1 -f)*(tmask- Tmean)**2 #variance of the transmission through the mask
+            coding_eff = np.sqrt(variance) #standard deviation
 
         
-        #soft energy cutoff
+        #soft energy cutoff; approximated as a sigmoid
         fwhm_at_ecut = ((self.low_ecut-1)*self.grad + self.res)/1000
         sigma = fwhm_at_ecut / (2*np.sqrt(2*np.log(2)))
         weight = 0.5 * (1 + erf((energy-self.low_ecut) / (np.sqrt(2)*sigma)))
@@ -256,6 +278,8 @@ class detector():
 
 
 class optics():
+    ### just the coded aperture mask transmission, for now. ###
+
     def __init__(self, thickness, mask_material, mask_density, localized):
         self.thickness = thickness
         self.localized = localized

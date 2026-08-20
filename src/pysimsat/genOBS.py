@@ -24,6 +24,7 @@ plt.rcParams.update(params)
 
 
 def generate_observation_spectrum(mission, sourcechars, spec_dir, resp_dir):
+    ### Use the given source spectrum and the pha file generated in genBKG to generate an observation pha file ###
 
     obs_pha_path = spec_dir / "observation.pha"
     obs_bkg_pha_path = spec_dir / "observation_bkg.pha"
@@ -48,6 +49,8 @@ def generate_observation_spectrum(mission, sourcechars, spec_dir, resp_dir):
 
 
 def plot_observation_spectrum(sourcename, exposureTime, output_dir, spec_dir):
+    ### Plot the fakeit spectrum generated in generate_observation_spectrum ###
+
     AllData.clear()
     AllData(str(spec_dir / "observation.pha"))
     spec = AllData(1)

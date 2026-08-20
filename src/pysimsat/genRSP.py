@@ -26,12 +26,16 @@ plt.rcParams.update(params)
 
 
 def load_instrument(instrument_name, instrument_json):
+    ### figures out which instrument in instrument_json you are wanting to work with ###
+
     with open(instrument_json) as f:
         instruments = commentjson.load(f)
     return instruments[instrument_name]
 
 
 def load_source(source_name, source_json):
+    ### figures out which source in source_json you are wanting to work with ###
+
     with open(source_json) as f:
         sources = commentjson.load(f)
 
@@ -39,6 +43,7 @@ def load_source(source_name, source_json):
 
 
 def build_instrument(chars, sourcechars, instrumentname):
+    ### Puts the instrument/source characteristics into a dictionary for use, and creates objects using the MissionClasses class ###
 
     #only add solmod if it exists in source.json
     kwargs = {}
@@ -57,6 +62,7 @@ def build_instrument(chars, sourcechars, instrumentname):
 
 
 def main(geo, mission, detector, output_dir, resp_dir):
+    ### print interesting calculations and create the effective area plot. MORE DETAILED PLOTS IN TESTPLOTS. ###
 
     print(f'field of view: {geo.fov_sr} steradians')
 

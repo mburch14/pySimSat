@@ -25,6 +25,7 @@ params = {
 plt.rcParams.update(params)
 
 def generate_background_spectrum(background, mission, sourcechars, spec_dir, resp_dir):
+    ### Create a background ASCII file, convert it to a pyxspec model, and run fakeit on the model with the rsp file ###
 
     #remove existing background models if they exist.
     for file in ["bkg.mod", "bkg.mod.gz"]:
@@ -56,7 +57,8 @@ def generate_background_spectrum(background, mission, sourcechars, spec_dir, res
 
 
 def plot_background_spectrum(num_det_pixels, exposureTime, output_dir, spec_dir):
-
+    ### Plot the fakeit spectrum generated in generate_background_spectrum ###
+    
     AllData.clear()
     AllData(str(spec_dir / "background.pha"))
     # Energy bin edges

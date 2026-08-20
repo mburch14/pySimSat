@@ -1,15 +1,15 @@
 {
 "CRAB-SWIFTBAT": {
-    "name": "Crab",
+    "name": "Crab",//name of source
     "exposure": 300, //sec
     "sourceShape": "powerlaw",
     "normalization": 10.17,
     "phoIndex": 2.15,
-    "localized": false,
+    "localized": false,//If it is a really bright source, you can assume that all source counts come from the source. Otherwise, you need localization
     "dcxr": true, //diffuse cosmic x-ray is included
     "albedo": false, // Albedo photons, BAT is always pointed ~30 degrees from the earth horizon to avoid damaging other instruments on swift.
     "cralbedo": false, //cosmic ray induced albedo, not included for bat
-    "cosmicrays": true,
+    "cosmicrays": true,//cosmic rays is included, but it is not currently modeled correctly. The shape is wrong.
     "sourceCounts": 144594, //actual number of counts in the BAT observation, approximated using The 70 Month Swift-BAT All-Sky Hard X-Ray Survey assuming that half of the detectors were active
     "backgroundCounts": 2056561}, // correct background counts (calculated by integrating swbbkgspec20041120v001.pha)
 
@@ -19,18 +19,18 @@
     "sourceShape": "powerlaw",
     "normalization": 10.17,
     "phoIndex": 2.15,
-    "solmod": 0.5,
+    "solmod": 0.5,//we assume solar miniimum
     "localized": false,
     "dcxr": true,
     "albedo": true,
     "cosmicrays": true,
     "cralbedo": true, //cosmic ray albedo
-    "sourceCounts": 195187.52, //actual number of counts in the CZTI observation, approximated using The Cadmium Zinc Telluride Imager on AstroSat
+    "sourceCounts": 390400, //actual number of counts in the CZTI observation, approximated using The Cadmium Zinc Telluride Imager on AstroSat
     "backgroundCounts": 1886565},// actual background counts (calculated by integrating swbbkgspec20041120v001.pha)
 
-"IC4329A-HESAT": {
+"IC4329A-XACTSAT": {
     "name": "IC4329A",
-    "exposure": 0, // I do not know (modular?)
+    "exposure": 0,
     "sourceShape": "powerlaw",
     "normalization": 0.0346, //photons/cm2/s/keV at 1keV
     "phoIndex": 1.73,

@@ -53,8 +53,8 @@
     "activedetector": 0.92
 },
 
-"HESAT":{
-    "altitude": 600,
+"XACTSAT":{
+    "altitude": 600, //THIS ENTIRE SATELLITE STILL NEEDS WORK. DO NOT USE!
     "inclination": 1,//degrees
     "e_min": 30,//keV
     "e_max": 50,//keV
